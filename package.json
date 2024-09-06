@@ -1,8 +1,15 @@
 {
-  "name": "codelens-position",
-  "displayName": "codelens-position",
+  "name": "gutter-codelens",
+  "displayName": "Gutter CodeLens",
   "description": "",
   "version": "0.0.1",
+  "keywords": [
+    "codelens",
+    "lens",
+    "gutter",
+    "ui",
+    "references"
+  ],
   "engines": {
     "vscode": "^1.92.0"
   },
@@ -10,39 +17,45 @@
     "Other"
   ],
   "activationEvents": [
-    "*"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
+  "extensionKind": [
+    "ui",
+    "workspace"
+  ],
   "contributes": {
     "commands": [
       {
-        "command": "codelens-position.showReferences",
+        "command": "gutter-codelens.showReferences",
+        "category": "Gutter-CodeLens",
         "title": "Show References"
       },
       {
-        "command": "codelens-position.codelensCommand",
+        "command": "gutter-codelens.codelensCommand",
+        "category": "Gutter-CodeLens",
         "title": "CodeLens Command"
       }
     ],
     "commandPalette": [
       {
-        "command": "codelens-position.showReferences",
+        "command": "gutter-codelens.showReferences",
         "when": "false"
       },
       {
-        "command": "codelens-position.codelensCommand",
+        "command": "gutter-codelens.codelensCommand",
         "when": "false"
       }
     ],
     "menus": {
       "editor/lineNumber/context": [
         {
-          "command": "codelens-position.showReferences",
-          "when": "editorHasReferenceProvider && editorLineNumber in codelens-position.referenceLines && editorLineNumber not in codelens-position.lensLines"
+          "command": "gutter-codelens.showReferences",
+          "when": "editorHasReferenceProvider && editorLineNumber in gutter-codelens.referenceLines && editorLineNumber not in gutter-codelens.lensLines"
         },
         {
-          "command": "codelens-position.codelensCommand",
-          "when": "editorHasReferenceProvider && editorLineNumber in codelens-position.lensLines"
+          "command": "gutter-codelens.codelensCommand",
+          "when": "editorHasReferenceProvider && editorLineNumber in gutter-codelens.lensLines"
         }
       ]
     }
