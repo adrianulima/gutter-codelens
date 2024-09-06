@@ -18,11 +18,19 @@
       {
         "command": "codelens-position.showReferences",
         "title": "Show References"
+      },
+      {
+        "command": "codelens-position.codelensCommand",
+        "title": "CodeLens Command"
       }
     ],
     "commandPalette": [
       {
         "command": "codelens-position.showReferences",
+        "when": "false"
+      },
+      {
+        "command": "codelens-position.codelensCommand",
         "when": "false"
       }
     ],
@@ -30,7 +38,11 @@
       "editor/lineNumber/context": [
         {
           "command": "codelens-position.showReferences",
-          "when": "true"
+          "when": "editorHasReferenceProvider && editorLineNumber in codelens-position.referenceLines && editorLineNumber not in codelens-position.lensLines"
+        },
+        {
+          "command": "codelens-position.codelensCommand",
+          "when": "editorHasReferenceProvider && editorLineNumber in codelens-position.lensLines"
         }
       ]
     }
