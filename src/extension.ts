@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 
 const decoratorsMap = new Map<string, vscode.TextEditorDecorationType>();
+var commandsMap = new Map<number, vscode.Command | undefined>();
 
 const createRefCountIcon = (count: number) => {
   const key = count.toString();
@@ -9,7 +10,7 @@ const createRefCountIcon = (count: number) => {
       key,
       vscode.window.createTextEditorDecorationType({
         gutterIconPath: vscode.Uri.parse(
-          `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"> <rect fill="none" x="0" y="0" width="100%" height="100%"/> <text x="100%" y="50%" fill="white" dominant-baseline="middle" text-anchor="end" font-size="25" font-family="Arial, Helvetica, sans-serif">${count}</text> </svg>`
+          `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"> <rect fill="none" x="0" y="0" width="100%" height="100%"/> <text x="100%" y="50%" fill="rgba(255, 255, 255, 0.6)" dominant-baseline="middle" text-anchor="end" font-size="25" font-family="Arial, Helvetica, sans-serif">${count}</text> </svg>`
         ),
         gutterIconSize: "contain",
       })
@@ -19,21 +20,13 @@ const createRefCountIcon = (count: number) => {
 };
 
 export function activate(context: vscode.ExtensionContext) {
-  console.log(
-    'Congratulations, your extension "codelens-position" is now active!'
-  );
-
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
   const disposable = vscode.commands.registerCommand(
-    "codelens-position.helloWorld",
-    () => {
-      // The code you place here will be executed every time your command is executed
-      // Display a message box to the user
-      vscode.window.showInformationMessage(
-        "Hello World from codelens-position!"
-      );
+    "codelens-position.showReferences",
+    ({ lineNumber }) => {
+      const command = commandsMap.get(lineNumber - 1);
+      if (command && command.arguments) {
+        vscode.commands.executeCommand(command.command, ...command.arguments);
+      }
     }
   );
 
@@ -45,7 +38,8 @@ export function activate(context: vscode.ExtensionContext) {
     return (
       (await vscode.commands.executeCommand<vscode.CodeLens[]>(
         "vscode.executeCodeLensProvider",
-        document.uri
+        document.uri,
+        Number.MAX_VALUE
       )) || []
     );
   }
@@ -71,23 +65,28 @@ export function activate(context: vscode.ExtensionContext) {
       return;
     }
 
-    console.log("updateDecorations");
-
     getLens(activeEditor.document).then(async (lens) => {
       const decorators = (
         await Promise.all(
           lens.map((l) => {
-            if (!activeEditor) {
+            if (
+              !activeEditor ||
+              l.command?.command !== "editor.action.showReferences"
+            ) {
               return;
             }
+            commandsMap.set(l.range.start.line, l.command);
             return getReferences(activeEditor.document, l.range);
           })
         )
-      )
-        .map((refs) => refs?.length ?? 0)
-        .reduce((acc: any, curr: number, i: number) => {
-          return { ...acc, [curr]: [...(acc[curr] || []), lens[i].range] };
-        }, {});
+      ).reduce((acc: any, curr: vscode.Location[] | undefined, i: number) => {
+        return !curr
+          ? acc
+          : {
+              ...acc,
+              [curr.length]: [...(acc[curr.length] || []), lens[i].range],
+            };
+      }, {});
 
       Object.keys(decorators).forEach(async (k) => {
         activeEditor?.setDecorations(

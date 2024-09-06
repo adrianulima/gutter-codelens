@@ -16,24 +16,20 @@
   "contributes": {
     "commands": [
       {
-        "command": "codelens-position.helloWorld",
-        "title": "Hello World",
-        "icon": {
-          "dark": "resources/edit.svg",
-          "light": "resources/edit.svg"
-        }
+        "command": "codelens-position.showReferences",
+        "title": "Show References"
       }
     ],
     "commandPalette": [
       {
-        "command": "codelens-position.helloWorld",
+        "command": "codelens-position.showReferences",
         "when": "false"
       }
     ],
     "menus": {
       "editor/lineNumber/context": [
         {
-          "command": "codelens-position.helloWorld",
+          "command": "codelens-position.showReferences",
           "when": "true"
         }
       ]
