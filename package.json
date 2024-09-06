@@ -24,11 +24,16 @@
         }
       }
     ],
+    "commandPalette": [
+      {
+        "command": "codelens-position.helloWorld",
+        "when": "false"
+      }
+    ],
     "menus": {
       "editor/lineNumber/context": [
         {
           "command": "codelens-position.helloWorld",
-          "group": "navigation",
           "when": "true"
         }
       ]
