@@ -1,5 +1,23 @@
 import * as vscode from "vscode";
 
+const decoratorsMap = new Map<string, vscode.TextEditorDecorationType>();
+
+const createRefCountIcon = (count: number) => {
+  const key = count.toString();
+  if (!decoratorsMap.has(key)) {
+    decoratorsMap.set(
+      key,
+      vscode.window.createTextEditorDecorationType({
+        gutterIconPath: vscode.Uri.parse(
+          `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"> <rect fill="none" x="0" y="0" width="100%" height="100%"/> <text x="100%" y="50%" fill="white" dominant-baseline="middle" text-anchor="end" font-size="25" font-family="Arial, Helvetica, sans-serif">${count}</text> </svg>`
+        ),
+        gutterIconSize: "contain",
+      })
+    );
+  }
+  return decoratorsMap.get(key);
+};
+
 export function activate(context: vscode.ExtensionContext) {
   console.log(
     'Congratulations, your extension "codelens-position" is now active!'
@@ -45,15 +63,6 @@ export function activate(context: vscode.ExtensionContext) {
     );
   }
 
-  // TODO: cache repeated
-  const createRefCountIcon = (count: number) =>
-    vscode.window.createTextEditorDecorationType({
-      gutterIconPath: vscode.Uri.parse(
-        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"> <rect fill="none" x="0" y="0" width="100%" height="100%"/> <text x="100%" y="50%" fill="white" dominant-baseline="middle" text-anchor="end" font-size="25" font-family="Arial, Helvetica, sans-serif">${count}</text> </svg>`
-      ),
-      gutterIconSize: "contain",
-    });
-
   let timeout: NodeJS.Timeout | undefined = undefined;
   let activeEditor = vscode.window.activeTextEditor;
 
@@ -61,6 +70,8 @@ export function activate(context: vscode.ExtensionContext) {
     if (!activeEditor) {
       return;
     }
+
+    console.log("updateDecorations");
 
     getLens(activeEditor.document).then(async (lens) => {
       const decorators = (
@@ -80,7 +91,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       Object.keys(decorators).forEach(async (k) => {
         activeEditor?.setDecorations(
-          createRefCountIcon(parseInt(k)),
+          createRefCountIcon(parseInt(k))!,
           decorators[k]
         );
       });
