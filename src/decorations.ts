@@ -5,9 +5,11 @@ import {
   TextEditor,
   TextEditorDecorationType,
   Uri,
+  window,
 } from "vscode";
 import { getLensSvgIcon } from "./svgGenerator";
 import { executeCodeLensProvider, executeReferenceProvider } from "./codelens";
+import { debounce } from "./utils";
 
 const commandsMap = new Map<string, Command | undefined>();
 const decoratorsMap = new Map<TextEditor, TextEditorDecorationType[]>();
@@ -38,7 +40,25 @@ export function clearDecorations(activeEditor: TextEditor) {
   decoratorsMap.delete(activeEditor);
 }
 
-export async function updateDecorations(activeEditor: TextEditor) {
+const updateContext = (ranges: { [key: string]: Range[] }) => {
+  commands.executeCommand(
+    "setContext",
+    "gutter-codelens.referenceLines",
+    Object.values(ranges)
+      .flat()
+      .map((r: Range) => r.start.line + 1)
+  );
+
+  if (ranges["lens"]?.length) {
+    commands.executeCommand(
+      "setContext",
+      "gutter-codelens.lensLines",
+      ranges["lens"].map((r: Range) => r.start.line + 1)
+    );
+  }
+};
+
+export async function updateDecorationsForEditor(activeEditor: TextEditor) {
   try {
     const lens = await executeCodeLensProvider(activeEditor.document.uri);
     const ranges: Record<string, Range[]> = {};
@@ -87,20 +107,10 @@ export async function updateDecorations(activeEditor: TextEditor) {
   }
 }
 
-const updateContext = (ranges: { [key: string]: Range[] }) => {
-  commands.executeCommand(
-    "setContext",
-    "gutter-codelens.referenceLines",
-    Object.values(ranges)
-      .flat()
-      .map((r: Range) => r.start.line + 1)
-  );
-
-  if (ranges["lens"]?.length) {
-    commands.executeCommand(
-      "setContext",
-      "gutter-codelens.lensLines",
-      ranges["lens"].map((r: Range) => r.start.line + 1)
-    );
+export const updateDecorations = () => {
+  if (window.activeTextEditor) {
+    updateDecorationsForEditor(window.activeTextEditor);
   }
 };
+
+export const debouncedUpdateDecorations = debounce(updateDecorations, 500);
