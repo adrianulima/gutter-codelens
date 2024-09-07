@@ -5,7 +5,7 @@ import {
   disposeEditorStateByUri,
   updateDecorationsForEditor,
 } from "./decorations";
-import { disposeDecorations } from "./svgGenerator";
+import { disposeDecorations } from "./svg";
 
 export function registerEventListeners(context: ExtensionContext) {
   window.onDidChangeActiveTextEditor(

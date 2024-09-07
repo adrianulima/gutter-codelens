@@ -7,7 +7,7 @@ import {
   Uri,
   window,
 } from "vscode";
-import { getLensSvgDecorationType } from "./svgGenerator";
+import { getLensSvgDecorationType } from "./svg";
 import { executeCodeLensProvider, executeReferenceProvider } from "./codelens";
 import { debounce } from "./utils";
 

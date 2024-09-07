@@ -4,7 +4,7 @@ import { registerCommands } from "./commands";
 import { registerEventListeners } from "./listeners";
 
 import { removeDecorationsAndCommands, updateDecorations } from "./decorations";
-import { disposeDecorations } from "./svgGenerator";
+import { disposeDecorations } from "./svg";
 
 export function activate(context: ExtensionContext) {
   registerCommands(context);
