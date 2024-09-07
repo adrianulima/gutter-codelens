@@ -1,5 +1,3 @@
-import { window } from "vscode";
-
 export const debounce = (callback: () => void, delay: number) => {
   let timeoutId: NodeJS.Timeout | undefined;
   return () => {

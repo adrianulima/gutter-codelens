@@ -5,7 +5,7 @@ export async function executeCodeLensProvider(uri: Uri): Promise<CodeLens[]> {
     const result = await commands.executeCommand<CodeLens[]>(
       "vscode.executeCodeLensProvider",
       uri,
-      Number.MAX_VALUE
+      Number.MAX_VALUE,
     );
 
     return result || [];
@@ -17,13 +17,13 @@ export async function executeCodeLensProvider(uri: Uri): Promise<CodeLens[]> {
 
 export async function executeReferenceProvider(
   uri: Uri,
-  range: Range
+  range: Range,
 ): Promise<Location[]> {
   try {
     const result = await commands.executeCommand<Location[]>(
       "vscode.executeReferenceProvider",
       uri,
-      new Position(range.start.line, range.start.character)
+      new Position(range.start.line, range.start.character),
     );
 
     return result || [];

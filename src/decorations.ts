@@ -19,7 +19,7 @@ type TEditorState = {
 const editorsMap = new Map<TextEditor, TEditorState>();
 
 function getEditorStateByUri(uri: Uri) {
-  for (let [key, value] of editorsMap.entries()) {
+  for (const [key, value] of editorsMap.entries()) {
     if (key.document.uri.toString() === uri.toString()) {
       return { editor: key, state: value };
     }
@@ -37,7 +37,7 @@ export function disposeEditorStateByUri(uri: Uri) {
   }
 
   editorState.state.decorations.forEach((d) =>
-    editorState.editor.setDecorations(d, [])
+    editorState.editor.setDecorations(d, []),
   );
   editorState.state.decorations = [];
   editorState.state.commands.clear();
@@ -60,14 +60,14 @@ const updateContext = (ranges: { [key: string]: Range[] }) => {
     "gutter-codelens.referenceLines",
     Object.values(ranges)
       .flat()
-      .map((r: Range) => r.start.line + 1)
+      .map((r: Range) => r.start.line + 1),
   );
 
   if (ranges["lens"]?.length) {
     commands.executeCommand(
       "setContext",
       "gutter-codelens.lensLines",
-      ranges["lens"].map((r: Range) => r.start.line + 1)
+      ranges["lens"].map((r: Range) => r.start.line + 1),
     );
   }
 };
@@ -98,13 +98,13 @@ export async function updateDecorationsForEditor(activeEditor: TextEditor) {
         try {
           const references = await executeReferenceProvider(
             activeEditor.document.uri,
-            l.range
+            l.range,
           );
           key = references.length.toString();
         } catch (error) {
           console.error(
             `Failed to execute reference provider for line ${l.range.start.line}:`,
-            error
+            error,
           );
         }
       }

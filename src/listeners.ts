@@ -19,7 +19,7 @@ export function registerEventListeners(context: ExtensionContext) {
       }
     },
     null,
-    context.subscriptions
+    context.subscriptions,
   );
 
   workspace.onDidChangeTextDocument(
@@ -29,7 +29,7 @@ export function registerEventListeners(context: ExtensionContext) {
       }
     },
     null,
-    context.subscriptions
+    context.subscriptions,
   );
 
   workspace.onDidCloseTextDocument(
@@ -39,7 +39,7 @@ export function registerEventListeners(context: ExtensionContext) {
       }
     },
     null,
-    context.subscriptions
+    context.subscriptions,
   );
 
   workspace.onDidChangeConfiguration(
@@ -49,6 +49,6 @@ export function registerEventListeners(context: ExtensionContext) {
       }
     },
     null,
-    context.subscriptions
+    context.subscriptions,
   );
 }

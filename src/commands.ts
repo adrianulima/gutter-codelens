@@ -1,4 +1,4 @@
-import { commands, Uri, window } from "vscode";
+import { commands, ExtensionContext, Uri, window } from "vscode";
 import { getLineCommand } from "./decorations";
 
 export const codelensCommandCall = ({
@@ -30,18 +30,18 @@ export const codelensCommandCall = ({
   }
 };
 
-export function registerCommands(context: any) {
+export function registerCommands(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand(
       "gutter-codelens.showReferences",
-      codelensCommandCall
-    )
+      codelensCommandCall,
+    ),
   );
 
   context.subscriptions.push(
     commands.registerCommand(
       "gutter-codelens.codelensCommand",
-      codelensCommandCall
-    )
+      codelensCommandCall,
+    ),
   );
 }
