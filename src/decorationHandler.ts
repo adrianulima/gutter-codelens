@@ -1,7 +1,6 @@
 import {
   Command,
   commands,
-  Location,
   Range,
   TextEditor,
   TextEditorDecorationType,
@@ -29,7 +28,6 @@ export function clearAllDecorations() {
 }
 
 export function clearDecorations(activeEditor: TextEditor) {
-  const key = activeEditor.document.uri.toString();
   if (!decoratorsMap.has(activeEditor)) {
     return;
   }
@@ -40,40 +38,53 @@ export function clearDecorations(activeEditor: TextEditor) {
   decoratorsMap.delete(activeEditor);
 }
 
-export function updateDecorations(activeEditor: TextEditor) {
-  executeCodeLensProvider(activeEditor.document.uri).then(async (lens) => {
-    const ranges: { [key: string]: Range[] } = (
-      await Promise.all(
-        lens.map((l) => {
-          commandsMap.set(
-            uriLineKey(activeEditor.document.uri, l.range.start.line),
-            l.command
+export async function updateDecorations(activeEditor: TextEditor) {
+  try {
+    const lens = await executeCodeLensProvider(activeEditor.document.uri);
+    const ranges: Record<string, Range[]> = {};
+
+    for (const l of lens) {
+      commandsMap.set(
+        uriLineKey(activeEditor.document.uri, l.range.start.line),
+        l.command
+      );
+
+      let key = "lens";
+      if (l.command?.command === "editor.action.showReferences") {
+        try {
+          const references = await executeReferenceProvider(
+            activeEditor.document.uri,
+            l.range
           );
-          if (l.command?.command === "editor.action.showReferences") {
-            return executeReferenceProvider(activeEditor.document.uri, l.range);
-          }
-        })
-      )
-    ).reduce((acc: any, curr: Location[] | undefined, i: number) => {
-      const key = curr?.length ?? "lens";
-      return {
-        ...acc,
-        [key]: [...(acc[key] || []), lens[i].range],
-      };
-    }, {});
+          key = references.length.toString();
+        } catch (error) {
+          console.error(
+            `Failed to execute reference provider for line ${l.range.start.line}:`,
+            error
+          );
+        }
+      }
+
+      if (!ranges[key]) {
+        ranges[key] = [];
+      }
+      ranges[key].push(l.range);
+    }
 
     clearDecorations(activeEditor);
 
     const decorationTypes: TextEditorDecorationType[] = [];
-    Object.keys(ranges).forEach(async (k) => {
-      const svg = getLensSvgIcon(k);
+    for (const [key, rangesArray] of Object.entries(ranges)) {
+      const svg = getLensSvgIcon(key);
       decorationTypes.push(svg);
-      activeEditor?.setDecorations(svg, ranges[k]);
-    });
+      activeEditor.setDecorations(svg, rangesArray);
+    }
     decoratorsMap.set(activeEditor, decorationTypes);
 
     updateContext(ranges);
-  });
+  } catch (error) {
+    console.error("Failed to update decorations:", error);
+  }
 }
 
 const updateContext = (ranges: { [key: string]: Range[] }) => {
@@ -82,14 +93,14 @@ const updateContext = (ranges: { [key: string]: Range[] }) => {
     "gutter-codelens.referenceLines",
     Object.values(ranges)
       .flat()
-      .map((r: any) => r.start.line + 1)
+      .map((r: Range) => r.start.line + 1)
   );
 
   if (ranges["lens"]?.length) {
     commands.executeCommand(
       "setContext",
       "gutter-codelens.lensLines",
-      ranges["lens"].map((r: any) => r.start.line + 1)
+      ranges["lens"].map((r: Range) => r.start.line + 1)
     );
   }
 };
