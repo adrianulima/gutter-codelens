@@ -94,13 +94,24 @@ export async function updateDecorationsForEditor(activeEditor: TextEditor) {
       editorState.commands.set(l.range.start.line, l.command);
 
       let key = "lens";
-      if (l.command?.command === "editor.action.showReferences") {
+      if (
+        l.command?.command === "editor.action.showReferences" ||
+        (l.command?.command === "" && l.command?.title.startsWith("0"))
+      ) {
         try {
           const references = await executeReferenceProvider(
             activeEditor.document.uri,
             l.range,
           );
-          key = references.length.toString();
+          key = references
+            .filter(
+              (r) =>
+                !(
+                  r.uri.path === activeEditor.document.uri.path &&
+                  r.range.start.isEqual(l.range.start)
+                ),
+            )
+            .length.toString();
         } catch (error) {
           console.error(
             `Failed to execute reference provider for line ${l.range.start.line}:`,
