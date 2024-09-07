@@ -58,6 +58,17 @@
           "when": "editorFocus && editorHasReferenceProvider && editorLineNumber in gutter-codelens.lensLines"
         }
       ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "Gutter CodeLens",
+      "properties": {
+        "gutterCodelens.showUnfocused": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show decorations for unfocused editors. Unfocused editors still won't update references automatically and will keep previous values until focused again."
+        }
+      }
     }
   },
   "scripts": {
