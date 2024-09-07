@@ -1,4 +1,4 @@
-import { TextEditorDecorationType, Uri, window } from "vscode";
+import { TextEditorDecorationType, Uri, window, workspace } from "vscode";
 
 type TSvgSettings = {
   icon: {
@@ -11,7 +11,12 @@ type TSvgSettings = {
   text: { x: number; y: number; color: string };
 };
 
-const decoratorsMap = new Map<string, TextEditorDecorationType>();
+const decorationsMap = new Map<string, TextEditorDecorationType>();
+
+export const disposeAllDecorations = () => {
+  decorationsMap.forEach((d) => d.dispose());
+  decorationsMap.clear();
+};
 
 const getEyeIcon = (x: number, y: number, rgba: string) => {
   const width = 24;
@@ -27,25 +32,26 @@ const getSvgWithSettings = (key: string, settings: TSvgSettings) => {
           settings.icon.single.y,
           settings.icon.color,
         )}</svg>`
-      : `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="54" height="54"><text x="75%" y="50%" fill="${settings.text.color}" dominant-baseline="middle" text-anchor="middle" font-size="25" font-family="Arial, Helvetica, sans-serif">${key}</text>${getEyeIcon(
-          settings.icon.x,
-          settings.icon.y,
-          settings.icon.color,
-        )}</svg>`,
+      : `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="54" height="54"><text x="${settings.icon.hidden ? 50 : 75}%" y="55%" fill="${settings.text.color}" dominant-baseline="middle" text-anchor="middle" font-size="25" font-family="Arial, Helvetica, sans-serif">${key}</text>${
+          settings.icon.hidden
+            ? ""
+            : getEyeIcon(settings.icon.x, settings.icon.y, settings.icon.color)
+        }</svg>`,
   );
 };
 
 export const getLensSvgDecorationType = (
   key: string,
 ): TextEditorDecorationType => {
-  if (!decoratorsMap.has(key)) {
+  if (!decorationsMap.has(key)) {
+    const settings = workspace.getConfiguration("gutterCodelens");
     const svgSettingsDark = {
       icon: {
         single: { x: 9, y: 9 },
         x: 2,
-        y: 12,
+        y: 15,
         color: "rgba(255, 255, 255, 0.4)",
-        hidden: false,
+        hidden: !settings.get("showReferencesIcon"),
       },
       text: { x: 0, y: 0, color: "rgba(255, 255, 255, 0.6)" },
     };
@@ -53,7 +59,7 @@ export const getLensSvgDecorationType = (
       icon: { ...svgSettingsDark.icon, color: "rgba(0, 0, 0, 0.4)" },
       text: { ...svgSettingsDark.text, color: "rgba(0, 0, 0, 0.6)" },
     };
-    decoratorsMap.set(
+    decorationsMap.set(
       key,
       window.createTextEditorDecorationType({
         dark: {
@@ -67,5 +73,5 @@ export const getLensSvgDecorationType = (
       }),
     );
   }
-  return decoratorsMap.get(key)!;
+  return decorationsMap.get(key)!;
 };

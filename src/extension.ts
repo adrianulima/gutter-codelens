@@ -7,6 +7,7 @@ import {
   disposeAllDecorationsAndCommands,
   updateDecorations,
 } from "./decorations";
+import { disposeAllDecorations } from "./svgGenerator";
 
 export function activate(context: ExtensionContext) {
   registerCommands(context);
@@ -17,4 +18,5 @@ export function activate(context: ExtensionContext) {
 
 export function deactivate() {
   disposeAllDecorationsAndCommands();
+  disposeAllDecorations();
 }

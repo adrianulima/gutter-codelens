@@ -5,6 +5,7 @@ import {
   disposeEditorStateByUri,
   updateDecorationsForEditor,
 } from "./decorations";
+import { disposeAllDecorations } from "./svgGenerator";
 
 export function registerEventListeners(context: ExtensionContext) {
   window.onDidChangeActiveTextEditor(
@@ -12,6 +13,7 @@ export function registerEventListeners(context: ExtensionContext) {
       const settings = workspace.getConfiguration("gutterCodelens");
       if (!settings.get("showUnfocused")) {
         disposeAllDecorationsAndCommands();
+        disposeAllDecorations();
       }
 
       if (editor) {
@@ -46,6 +48,7 @@ export function registerEventListeners(context: ExtensionContext) {
     function (event) {
       if (event.affectsConfiguration("gutterCodelens")) {
         disposeAllDecorationsAndCommands();
+        disposeAllDecorations();
       }
     },
     null,

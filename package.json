@@ -67,6 +67,11 @@
           "type": "boolean",
           "default": true,
           "description": "If true, shows decorations for unfocused editors. Unfocused editors still won't update reference counts automatically and will keep previous values until focused again."
+        },
+        "gutterCodelens.showReferencesIcon": {
+          "type": "boolean",
+          "default": true,
+          "description": "If true, shows the icon besides the reference count in the gutter."
         }
       }
     }
