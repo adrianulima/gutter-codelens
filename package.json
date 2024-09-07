@@ -72,6 +72,16 @@
           "type": "boolean",
           "default": true,
           "description": "If true, shows the icon besides the reference count in the gutter."
+        },
+        "gutterCodelens.color": {
+          "type": "string",
+          "default": "",
+          "description": "Color of the reference count in the gutter. Should be using rgba() format. If empty, defaults to rgba(255, 255, 255, 0.6) i dark themes and equivalent in light themes."
+        },
+        "gutterCodelens.iconColor": {
+          "type": "string",
+          "default": "",
+          "description": "Color of the icon in the gutter. Should be using rgba() format. . If empty, defaults to rgba(255, 255, 255, 0.4) i dark themes and equivalent in light themes."
         }
       }
     }

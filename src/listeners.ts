@@ -13,7 +13,7 @@ export function registerEventListeners(context: ExtensionContext) {
       const settings = workspace.getConfiguration("gutterCodelens");
       if (!settings.get("showUnfocused")) {
         disposeAllDecorationsAndCommands();
-        disposeAllDecorations();
+        // disposeAllDecorations();
       }
 
       if (editor) {
