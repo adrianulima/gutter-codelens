@@ -1,8 +1,19 @@
 {
   "name": "gutter-codelens",
   "displayName": "Gutter CodeLens",
-  "description": "",
-  "version": "0.0.1",
+  "description": "Places CodeLens in the editor's gutter, separate from the native CodeLens. This improves code readability by keeping CodeLens compact and out of the main code area.",
+  "author": "Adriano Lima",
+  "publisher": "AdrianoLima",
+  "version": "0.1.0",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/adrianulima/gutter-codelens/issues"
+  },
+  "homepage": "https://github.com/adrianulima/gutter-codelens#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adrianulima/gutter-codelens.git"
+  },
   "keywords": [
     "codelens",
     "lens",
@@ -14,7 +25,8 @@
     "vscode": "^1.92.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Visualization"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -76,12 +88,12 @@
         "gutterCodelens.color": {
           "type": "string",
           "default": "",
-          "description": "Color of the reference count in the gutter. Should be using rgba() format. If empty, defaults to rgba(255, 255, 255, 0.6) i dark themes and equivalent in light themes."
+          "description": "Color of the reference count in the gutter. Should be using rgba() format. If empty, defaults to rgba(255, 255, 255, 0.6) on dark themes and equivalent on light themes."
         },
         "gutterCodelens.iconColor": {
           "type": "string",
           "default": "",
-          "description": "Color of the icon in the gutter. Should be using rgba() format. . If empty, defaults to rgba(255, 255, 255, 0.4) i dark themes and equivalent in light themes."
+          "description": "Color of the icon in the gutter. Should be using rgba() format. . If empty, defaults to rgba(255, 255, 255, 0.4) on dark themes and equivalent on light themes."
         }
       }
     }

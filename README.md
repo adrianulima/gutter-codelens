@@ -1,71 +1,59 @@
-# gutter-codelens README
+# Gutter CodeLens for VSCode
 
-This is the README for your extension "gutter-codelens". After writing up a brief description, we recommend including the following sections.
+Gutter CodeLens is a Visual Studio Code extension that places CodeLens in the editor's gutter, separate from the native CodeLens. This improves code readability by keeping CodeLens compact and out of the main code area.
+
+![gutter-codelens-preview](https://github.com/adrianulima/gutter-codelens/blob/main/assets/gutter-codelens-preview.png?raw=true)
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- **Customizable Colors:** Easily customize the appearance of CodeLens with configurable colors to suit your theme and preferences.
+- **Fast to Show Results:** The extension is optimized for quick updates, ensuring that CodeLens appears swiftly as you navigate your code.
+- **Support for Custom CodeLens:** Works not just with reference counts but also with custom CodeLens commands, making it versatile for various use cases.
+- **Context Menu Integration:** Right-click on the gutter CodeLens to access "Show References" and other options, functioning similarly to the original CodeLens context menu.
 
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+![gutter-codelens-preview-gif](https://github.com/adrianulima/gutter-codelens/blob/main/assets/gutter-codelens-preview.gif?raw=true)
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+This extension does not add the CodeLens feature itself; you still need to enable it for the language you want to use. For example, for TypeScript, you will need to add the following setting to your settings.json:
+
+```json
+"typescript.referencesCodeLens.enabled": true
+```
+
+To disable original CodeLens, you can set the following setting:
+
+```json
+"editor.codeLens": false
+```
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-- `myExtension.enable`: Enable/disable this extension.
-- `myExtension.thing`: Set to `blah` to do something.
+| Configuration                       | Default | Description                                                                                                                                                                |
+| ----------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "gutterCodelens.showUnfocused"      | `true`  | If true, shows decorations for unfocused editors. Unfocused editors still won't update reference counts automatically and will keep previous values until focused again.   |
+| "gutterCodelens.showReferencesIcon" | `true`  | If true, shows the icon besides the reference count in the gutter.                                                                                                         |
+| "gutterCodelens.color"              | `""`    | Color of the reference count in the gutter. Should be using rgba() format. If empty, defaults to `rgba(255, 255, 255, 0.6)` on dark themes and equivalent on light themes. |
+| "gutterCodelens.iconColor"          | `""`    | Color of the icon in the gutter. Should be using rgba() format. . If empty, defaults to `rgba(255, 255, 255, 0.4)` on dark themes and equivalent on light themes.          |
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+- The extension currently works only for active editors. Unfocused editors will still show previous values, just like the original CodeLens.
+- Right-clicking on an unfocused editor won't show the command in the context menu.
+- There are some limitations from the VSCode API that prevents this extension from having more features like left click actions or mouse hover animations.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.1.0
 
-### 1.0.0
+This is the first version of the extension, primarily used for personal projects before a wider release. The next update will include any bug fixes and improvements based on user feedback. If you decide to use this extension, feel free to create issues for any bugs or suggestions.
 
-Initial release of ...
+## Contribute
 
-### 1.0.1
+Run the project locally:
 
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-- [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-- Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-- Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-- Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-- [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-- [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+```bash
+git clone https://github.com/adrianulima/gutter-codelens.git
+cd gutter-codelens
+npm run watch
+```
