@@ -1,164 +1,84 @@
-import * as vscode from "vscode";
+import {
+  commands,
+  ExtensionContext,
+  TextEditor,
+  Uri,
+  window,
+  workspace,
+} from "vscode";
+import {
+  clearAllDecorations,
+  getCommand,
+  updateDecorations,
+} from "./decorationHandler";
 
-const genericSVG = `<svg xmlns="http://www.w3.org/2000/svg" x="9" y="9" width="24" height="24" fill="none" stroke="none"> <path fill-rule="evenodd" clip-rule="evenodd" d="M2 12C2 13.6394 2.42496 14.1915 3.27489 15.2957C4.97196 17.5004 7.81811 20 12 20C16.1819 20 19.028 17.5004 20.7251 15.2957C21.575 14.1915 22 13.6394 22 12C22 10.3606 21.575 9.80853 20.7251 8.70433C19.028 6.49956 16.1819 4 12 4C7.81811 4 4.97196 6.49956 3.27489 8.70433C2.42496 9.80853 2 10.3606 2 12ZM12 8.25C9.92893 8.25 8.25 9.92893 8.25 12C8.25 14.0711 9.92893 15.75 12 15.75C14.0711 15.75 15.75 14.0711 15.75 12C15.75 9.92893 14.0711 8.25 12 8.25Z" fill="rgba(255, 255, 255, 0.4)"></path></svg>`;
-const refIcon = `<svg xmlns="http://www.w3.org/2000/svg" x="2" y="12" width="24" height="24" fill="none" stroke="none"> <path fill-rule="evenodd" clip-rule="evenodd" d="M2 12C2 13.6394 2.42496 14.1915 3.27489 15.2957C4.97196 17.5004 7.81811 20 12 20C16.1819 20 19.028 17.5004 20.7251 15.2957C21.575 14.1915 22 13.6394 22 12C22 10.3606 21.575 9.80853 20.7251 8.70433C19.028 6.49956 16.1819 4 12 4C7.81811 4 4.97196 6.49956 3.27489 8.70433C2.42496 9.80853 2 10.3606 2 12ZM12 8.25C9.92893 8.25 8.25 9.92893 8.25 12C8.25 14.0711 9.92893 15.75 12 15.75C14.0711 15.75 15.75 14.0711 15.75 12C15.75 9.92893 14.0711 8.25 12 8.25Z" fill="rgba(255, 255, 255, 0.4)"></path></svg>`;
-const decoratorsMap = new Map<string, vscode.TextEditorDecorationType>();
-var commandsMap = new Map<number, vscode.Command | undefined>();
-
-const getLensIcon = (key: string) => {
-  if (!decoratorsMap.has(key)) {
-    decoratorsMap.set(
-      key,
-      vscode.window.createTextEditorDecorationType({
-        gutterIconPath: vscode.Uri.parse(
-          key === "lens"
-            ? `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42">${genericSVG}</svg>`
-            : `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="54" height="54"><text x="75%" y="50%" fill="rgba(255, 255, 255, 0.6)" dominant-baseline="middle" text-anchor="middle" font-size="25" font-family="Arial, Helvetica, sans-serif">${key}</text>${refIcon}</svg>`
-        ),
-        gutterIconSize: "contain",
-      })
-    );
+const codelensCommandCall = ({
+  lineNumber,
+  uri,
+}: { lineNumber?: number; uri?: Uri } = {}) => {
+  const line = lineNumber || window.activeTextEditor?.selection.active.line;
+  const documentUri = uri || window.activeTextEditor?.document.uri;
+  if (!line || !documentUri) {
+    return;
   }
-  return decoratorsMap.get(key);
+
+  const command = getCommand(documentUri, line - 1);
+  if (command && command.arguments) {
+    commands.executeCommand(command.command, ...command.arguments);
+  }
 };
 
-export function activate(context: vscode.ExtensionContext) {
-  const commandFunc = ({ lineNumber }: { lineNumber?: number } = {}) => {
-    const line =
-      lineNumber || vscode.window.activeTextEditor?.selection.active.line;
-
-    if (!line) {
-      return;
-    }
-    const command = commandsMap.get(line - 1);
-    if (command && command.arguments) {
-      vscode.commands.executeCommand(command.command, ...command.arguments);
-    }
-  };
-
-  const showReferencesCommand = vscode.commands.registerCommand(
-    "gutter-codelens.showReferences",
-    commandFunc
+export function activate(context: ExtensionContext) {
+  context.subscriptions.push(
+    commands.registerCommand(
+      "gutter-codelens.showReferences",
+      codelensCommandCall
+    )
   );
-  context.subscriptions.push(showReferencesCommand);
 
-  const codelensCommand = vscode.commands.registerCommand(
-    "gutter-codelens.codelensCommand",
-    commandFunc
+  context.subscriptions.push(
+    commands.registerCommand(
+      "gutter-codelens.codelensCommand",
+      codelensCommandCall
+    )
   );
-  context.subscriptions.push(codelensCommand);
-
-  async function getLens(
-    document: vscode.TextDocument
-  ): Promise<vscode.CodeLens[]> {
-    return (
-      (await vscode.commands.executeCommand<vscode.CodeLens[]>(
-        "vscode.executeCodeLensProvider",
-        document.uri,
-        Number.MAX_VALUE
-      )) || []
-    );
-  }
-
-  async function getReferences(
-    document: vscode.TextDocument,
-    range: vscode.Range
-  ): Promise<vscode.Location[]> {
-    return (
-      (await vscode.commands.executeCommand<vscode.Location[]>(
-        "vscode.executeReferenceProvider",
-        document.uri,
-        new vscode.Position(range.start.line, range.start.character)
-      )) || []
-    );
-  }
 
   let timeout: NodeJS.Timeout | undefined = undefined;
-  let activeEditor = vscode.window.activeTextEditor;
-
-  function updateDecorations() {
-    if (!activeEditor) {
-      return;
-    }
-
-    getLens(activeEditor.document).then(async (lens) => {
-      const decorators = (
-        await Promise.all(
-          lens.map((l) => {
-            if (!activeEditor) {
-              return;
-            }
-
-            commandsMap.set(l.range.start.line, l.command);
-
-            if (l.command?.command !== "editor.action.showReferences") {
-              return;
-            }
-
-            return getReferences(activeEditor.document, l.range);
-          })
-        )
-      ).reduce((acc: any, curr: vscode.Location[] | undefined, i: number) => {
-        const key = curr?.length ?? "lens";
-        return {
-          ...acc,
-          [key]: [...(acc[key] || []), lens[i].range],
-        };
-      }, {});
-
-      Object.keys(decorators).forEach(async (k) => {
-        activeEditor?.setDecorations(getLensIcon(k)!, decorators[k]);
-      });
-
-      vscode.commands.executeCommand(
-        "setContext",
-        "gutter-codelens.referenceLines",
-        Object.values(decorators)
-          .flat()
-          .map((r: any) => r.start.line + 1)
-      );
-
-      if (decorators["lens"]?.length) {
-        vscode.commands.executeCommand(
-          "setContext",
-          "gutter-codelens.lensLines",
-          decorators["lens"].map((r: any) => r.start.line + 1)
-        );
-      }
-    });
-  }
-
-  function triggerUpdateDecorations(throttle = false) {
+  function triggerUpdateDecorations(
+    activeEditor: TextEditor,
+    throttle: boolean = false
+  ) {
     if (timeout) {
       clearTimeout(timeout);
       timeout = undefined;
     }
     if (throttle) {
-      timeout = setTimeout(updateDecorations, 500);
+      timeout = setTimeout(() => {
+        updateDecorations(activeEditor);
+      }, 500);
     } else {
-      updateDecorations();
+      updateDecorations(activeEditor);
     }
   }
 
-  if (activeEditor) {
-    triggerUpdateDecorations();
+  if (window.activeTextEditor) {
+    triggerUpdateDecorations(window.activeTextEditor);
   }
 
-  vscode.window.onDidChangeActiveTextEditor(
+  window.onDidChangeActiveTextEditor(
     (editor) => {
-      activeEditor = editor;
       if (editor) {
-        triggerUpdateDecorations();
+        triggerUpdateDecorations(editor);
       }
     },
     null,
     context.subscriptions
   );
 
-  vscode.workspace.onDidChangeTextDocument(
+  workspace.onDidChangeTextDocument(
     (event) => {
-      if (activeEditor && event.document === activeEditor.document) {
-        triggerUpdateDecorations(true);
+      if (event.document === window.activeTextEditor?.document) {
+        triggerUpdateDecorations(window.activeTextEditor, true);
       }
     },
     null,
@@ -167,4 +87,6 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+  clearAllDecorations();
+}
