@@ -2,11 +2,10 @@
 import { ExtensionContext } from "vscode";
 import { registerCommands } from "./commands";
 import { registerEventListeners } from "./listeners";
-import { window } from "vscode";
+
 import {
-  clearAllDecorations,
+  disposeAllDecorationsAndCommands,
   updateDecorations,
-  updateDecorationsForEditor,
 } from "./decorations";
 
 export function activate(context: ExtensionContext) {
@@ -17,5 +16,5 @@ export function activate(context: ExtensionContext) {
 }
 
 export function deactivate() {
-  clearAllDecorations();
+  disposeAllDecorationsAndCommands();
 }

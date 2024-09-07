@@ -51,11 +51,11 @@
       "editor/lineNumber/context": [
         {
           "command": "gutter-codelens.showReferences",
-          "when": "editorHasReferenceProvider && editorLineNumber in gutter-codelens.referenceLines && editorLineNumber not in gutter-codelens.lensLines"
+          "when": "editorFocus && editorHasReferenceProvider && editorLineNumber in gutter-codelens.referenceLines && editorLineNumber not in gutter-codelens.lensLines"
         },
         {
           "command": "gutter-codelens.codelensCommand",
-          "when": "editorHasReferenceProvider && editorLineNumber in gutter-codelens.lensLines"
+          "when": "editorFocus && editorHasReferenceProvider && editorLineNumber in gutter-codelens.lensLines"
         }
       ]
     }

@@ -1,6 +1,7 @@
 import { window, workspace, ExtensionContext } from "vscode";
 import {
   debouncedUpdateDecorations,
+  disposeEditorStateByUri,
   updateDecorationsForEditor,
 } from "./decorations";
 
@@ -19,6 +20,16 @@ export function registerEventListeners(context: ExtensionContext) {
     (event) => {
       if (event.document === window.activeTextEditor?.document) {
         debouncedUpdateDecorations();
+      }
+    },
+    null,
+    context.subscriptions
+  );
+
+  workspace.onDidCloseTextDocument(
+    function (event) {
+      if (event.uri) {
+        disposeEditorStateByUri(event.uri);
       }
     },
     null,

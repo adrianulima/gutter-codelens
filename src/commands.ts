@@ -1,19 +1,24 @@
 import { commands, Uri, window } from "vscode";
-import { getCommand } from "./decorations";
+import { getLineCommand } from "./decorations";
 
 export const codelensCommandCall = ({
   lineNumber,
   uri,
 }: { lineNumber?: number; uri?: Uri } = {}) => {
   const line = lineNumber ?? window.activeTextEditor?.selection.active.line;
-  const documentUri = uri ?? window.activeTextEditor?.document.uri;
+  const documentUri = window.activeTextEditor?.document.uri;
+
+  if (uri?.toString() !== documentUri?.toString()) {
+    console.warn("Command ignored, clicked inactive editor gutter lens.");
+    return;
+  }
 
   if (line === undefined || !documentUri) {
     console.warn("Line number or document URI is missing.");
     return;
   }
 
-  const command = getCommand(documentUri, line - 1);
+  const command = getLineCommand(documentUri, line - 1);
   if (command?.command && command.arguments) {
     try {
       commands.executeCommand(command.command, ...command.arguments);

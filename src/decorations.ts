@@ -7,37 +7,51 @@ import {
   Uri,
   window,
 } from "vscode";
-import { getLensSvgIcon } from "./svgGenerator";
+import { getLensSvgDecorationType } from "./svgGenerator";
 import { executeCodeLensProvider, executeReferenceProvider } from "./codelens";
 import { debounce } from "./utils";
 
-const commandsMap = new Map<string, Command | undefined>();
-const decoratorsMap = new Map<TextEditor, TextEditorDecorationType[]>();
+type TEditorState = {
+  decorations: TextEditorDecorationType[];
+  commands: Map<number, Command | undefined>;
+};
 
-const uriLineKey = (uri: Uri, line: number) => `${uri.toString()}_${line}`;
-export const getCommand = (uri: Uri, line: number) =>
-  commandsMap.get(uriLineKey(uri, line));
+const editorsMap = new Map<TextEditor, TEditorState>();
 
-export function clearAllDecorations() {
-  decoratorsMap.forEach((decorations, editor) => {
-    decorations.forEach((d) => {
-      editor.setDecorations(d, []);
-    });
-  });
-
-  commandsMap.clear();
-  decoratorsMap.clear();
+function getEditorStateByUri(uri: Uri) {
+  for (let [key, value] of editorsMap.entries()) {
+    if (key.document.uri.toString() === uri.toString()) {
+      return { editor: key, state: value };
+    }
+  }
 }
 
-export function clearDecorations(activeEditor: TextEditor) {
-  if (!decoratorsMap.has(activeEditor)) {
+export const getLineCommand = (uri: Uri, line: number) => {
+  return getEditorStateByUri(uri)?.state.commands.get(line);
+};
+
+export function disposeEditorStateByUri(uri: Uri) {
+  const editorState = getEditorStateByUri(uri);
+  if (!editorState) {
     return;
   }
 
-  decoratorsMap.get(activeEditor)?.forEach((d) => {
-    activeEditor.setDecorations(d, []);
+  editorState.state.decorations.forEach((d) =>
+    editorState.editor.setDecorations(d, [])
+  );
+  editorState.state.decorations = [];
+  editorState.state.commands.clear();
+  editorsMap.delete(editorState.editor);
+}
+
+export function disposeAllDecorationsAndCommands() {
+  editorsMap.forEach((editorState, editor) => {
+    editorState.decorations.forEach((d) => editor.setDecorations(d, []));
+    editorState.decorations = [];
+    editorState.commands.clear();
   });
-  decoratorsMap.delete(activeEditor);
+
+  editorsMap.clear();
 }
 
 const updateContext = (ranges: { [key: string]: Range[] }) => {
@@ -58,16 +72,26 @@ const updateContext = (ranges: { [key: string]: Range[] }) => {
   }
 };
 
+const initOrGetEditorState = (editor: TextEditor) => {
+  let editorState = editorsMap.get(editor);
+  if (!editorState) {
+    editorState = {
+      decorations: [],
+      commands: new Map<number, Command | undefined>(),
+    };
+    editorsMap.set(editor, editorState);
+  }
+  return editorState;
+};
+
 export async function updateDecorationsForEditor(activeEditor: TextEditor) {
   try {
     const lens = await executeCodeLensProvider(activeEditor.document.uri);
     const ranges: Record<string, Range[]> = {};
+    const editorState = initOrGetEditorState(activeEditor);
 
     for (const l of lens) {
-      commandsMap.set(
-        uriLineKey(activeEditor.document.uri, l.range.start.line),
-        l.command
-      );
+      editorState.commands.set(l.range.start.line, l.command);
 
       let key = "lens";
       if (l.command?.command === "editor.action.showReferences") {
@@ -91,15 +115,14 @@ export async function updateDecorationsForEditor(activeEditor: TextEditor) {
       ranges[key].push(l.range);
     }
 
-    clearDecorations(activeEditor);
+    editorState.decorations.forEach((d) => activeEditor.setDecorations(d, []));
+    editorState!.decorations = [];
 
-    const decorationTypes: TextEditorDecorationType[] = [];
     for (const [key, rangesArray] of Object.entries(ranges)) {
-      const svg = getLensSvgIcon(key);
-      decorationTypes.push(svg);
-      activeEditor.setDecorations(svg, rangesArray);
+      const svgDecorationType = getLensSvgDecorationType(key);
+      editorState.decorations.push(svgDecorationType);
+      activeEditor.setDecorations(svgDecorationType, rangesArray);
     }
-    decoratorsMap.set(activeEditor, decorationTypes);
 
     updateContext(ranges);
   } catch (error) {
