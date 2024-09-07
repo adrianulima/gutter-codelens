@@ -13,7 +13,7 @@ type TSvgSettings = {
 
 const decorationsMap = new Map<string, TextEditorDecorationType>();
 
-export const disposeAllDecorations = () => {
+export const disposeDecorations = () => {
   decorationsMap.forEach((d) => d.dispose());
   decorationsMap.clear();
 };

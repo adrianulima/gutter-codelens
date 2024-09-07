@@ -7,8 +7,8 @@
     "codelens",
     "lens",
     "gutter",
-    "ui",
-    "references"
+    "references",
+    "ui"
   ],
   "engines": {
     "vscode": "^1.92.0"

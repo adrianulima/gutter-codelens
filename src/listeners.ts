@@ -1,24 +1,32 @@
 import { window, workspace, ExtensionContext } from "vscode";
 import {
   debouncedUpdateDecorations,
-  disposeAllDecorationsAndCommands,
+  removeDecorationsAndCommands,
   disposeEditorStateByUri,
   updateDecorationsForEditor,
 } from "./decorations";
-import { disposeAllDecorations } from "./svgGenerator";
+import { disposeDecorations } from "./svgGenerator";
 
 export function registerEventListeners(context: ExtensionContext) {
   window.onDidChangeActiveTextEditor(
     (editor) => {
       const settings = workspace.getConfiguration("gutterCodelens");
       if (!settings.get("showUnfocused")) {
-        disposeAllDecorationsAndCommands();
+        removeDecorationsAndCommands();
         // disposeAllDecorations();
       }
 
       if (editor) {
         updateDecorationsForEditor(editor);
       }
+    },
+    null,
+    context.subscriptions,
+  );
+
+  workspace.onDidOpenTextDocument(
+    (event) => {
+      console.log("Opened document:", event.uri);
     },
     null,
     context.subscriptions,
@@ -47,8 +55,8 @@ export function registerEventListeners(context: ExtensionContext) {
   workspace.onDidChangeConfiguration(
     function (event) {
       if (event.affectsConfiguration("gutterCodelens")) {
-        disposeAllDecorationsAndCommands();
-        disposeAllDecorations();
+        removeDecorationsAndCommands();
+        disposeDecorations();
       }
     },
     null,

@@ -44,7 +44,7 @@ export function disposeEditorStateByUri(uri: Uri) {
   editorsMap.delete(editorState.editor);
 }
 
-export function disposeAllDecorationsAndCommands() {
+export function removeDecorationsAndCommands() {
   editorsMap.forEach((editorState, editor) => {
     editorState.decorations.forEach((d) => editor.setDecorations(d, []));
     editorState.decorations = [];
