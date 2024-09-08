@@ -9,11 +9,19 @@ Gutter CodeLens is a Visual Studio Code extension that places CodeLens in the ed
 - **Customizable Colors:** Easily customize the appearance of CodeLens with configurable colors to suit your theme and preferences.
 - **Fast to Show Results:** The extension is optimized for quick updates, ensuring that CodeLens appears swiftly as you navigate your code.
 - **Support for Custom CodeLens:** Works not just with reference counts but also with custom CodeLens commands, making it versatile for various use cases.
-- **Context Menu Integration:** Right-click on the gutter CodeLens to access "Show References" and other options, functioning similarly to the original CodeLens context menu.
+- **Context Menu Integration:** _[optional]_ Right-click on the gutter CodeLens to access "Show References" and other options, functioning similarly to the original CodeLens context menu.
+
+> [!TIP]
+> You can still `CMD + Click` the Symbol to quickly open the peek view with references.
 
 ![gutter-codelens-preview-gif](https://github.com/adrianulima/gutter-codelens/blob/main/assets/gutter-codelens-preview.gif?raw=true)
 
-## Requirements
+## Install
+
+1. Go to [VS Marketplace](https://marketplace.visualstudio.com/items?itemName=AdrianoLima.gutter-codelens).
+2. Click the Install button.
+
+### Requirements
 
 This extension does not add the CodeLens feature itself; you still need to enable it for the language you want to use. For example, for TypeScript, you will need to add the following setting to your settings.json:
 
@@ -55,5 +63,6 @@ Run the project locally:
 ```bash
 git clone https://github.com/adrianulima/gutter-codelens.git
 cd gutter-codelens
-npm run watch
+pnpm install
+pnpm run watch
 ```
