@@ -1,6 +1,6 @@
 # Gutter CodeLens for VSCode
 
-Gutter CodeLens is a Visual Studio Code extension that places CodeLens in the editor's gutter, separate from the native CodeLens. This improves code readability by keeping CodeLens compact and out of the main code area.
+Gutter CodeLens is a Visual Studio Code extension that places CodeLens in the editor's gutter, separated from the native CodeLens. This improves code readability by keeping CodeLens compact and out of the main code area.
 
 ![gutter-codelens-preview](https://github.com/adrianulima/gutter-codelens/blob/main/assets/gutter-codelens-preview.png?raw=true)
 
@@ -11,10 +11,16 @@ Gutter CodeLens is a Visual Studio Code extension that places CodeLens in the ed
 - **Support for Custom CodeLens:** Works not just with reference counts but also with custom CodeLens commands, making it versatile for various use cases.
 - **Context Menu Integration:** _[optional]_ Right-click on the gutter CodeLens to access "Show References" and other options, functioning similarly to the original CodeLens context menu.
 
-> [!TIP]
-> You can still `CMD + Click` the Symbol to quickly open the peek view with references.
-
 ![gutter-codelens-preview-gif](https://github.com/adrianulima/gutter-codelens/blob/main/assets/gutter-codelens-preview.gif?raw=true)
+
+> [!TIP]
+> You can still `CMD/Ctrl + Click` the Symbol to quickly open the peek view with references.
+>
+> Use the following setting if you want to make the `CMD/Ctrl + Click` action to always peek the references:
+
+```json
+  "editor.gotoLocation.alternativeDefinitionCommand": "editor.action.referenceSearch.trigger"
+```
 
 ## Install
 

@@ -2,7 +2,7 @@
   "name": "gutter-codelens",
   "icon": "assets/gutter-codelens-icon.png",
   "displayName": "Gutter CodeLens",
-  "description": "Places CodeLens in the editor's gutter, separate from the native CodeLens. This improves code readability by keeping CodeLens compact and out of the main code area.",
+  "description": "Places CodeLens in the editor's gutter, separated from the native CodeLens. This improves code readability by keeping CodeLens compact and out of the main code area.",
   "author": "Adriano Lima",
   "publisher": "AdrianoLima",
   "version": "0.1.0",
