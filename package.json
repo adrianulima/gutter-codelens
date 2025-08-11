@@ -5,7 +5,7 @@
   "description": "Places CodeLens in the editor's gutter, separated from the native CodeLens. This improves code readability by keeping CodeLens compact and out of the main code area.",
   "author": "Adriano Lima",
   "publisher": "AdrianoLima",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/adrianulima/gutter-codelens/issues"
@@ -95,6 +95,16 @@
           "type": "string",
           "default": "",
           "description": "Color of the icon in the gutter. Should be using rgba() format. . If empty, defaults to rgba(255, 255, 255, 0.4) on dark themes and equivalent on light themes."
+        },
+        "gutterCodelens.debounceMs": {
+          "type": "number",
+          "default": 500,
+          "description": "Debounce delay in milliseconds for updating decorations when typing."
+        },
+        "gutterCodelens.maxCodeLenses": {
+          "type": "number",
+          "default": 50,
+          "description": "Maximum number of CodeLenses to process per file. Set to -1 for unlimited."
         }
       }
     }

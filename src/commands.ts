@@ -5,28 +5,42 @@ export const codelensCommandCall = ({
   lineNumber,
   uri,
 }: { lineNumber?: number; uri?: Uri } = {}) => {
-  const line = lineNumber ?? window.activeTextEditor?.selection.active.line;
-  const documentUri = window.activeTextEditor?.document.uri;
+  const activeEditor = window.activeTextEditor;
+  const line = lineNumber ?? activeEditor?.selection.active.line;
+  const documentUri = activeEditor?.document.uri;
 
-  if (uri?.toString() !== documentUri?.toString()) {
-    console.warn("Command ignored, clicked inactive editor gutter lens.");
+  if (!activeEditor || !documentUri) {
+    console.warn("No active editor or document URI available.");
     return;
   }
 
-  if (line === undefined || !documentUri) {
-    console.warn("Line number or document URI is missing.");
+  if (uri && uri.toString() !== documentUri.toString()) {
+    console.warn("Command ignored: clicked on inactive editor gutter lens.");
     return;
   }
 
-  const command = getLineCommand(documentUri, line - 1);
-  if (command?.command && command.arguments) {
-    try {
-      commands.executeCommand(command.command, ...command.arguments);
-    } catch (error) {
-      console.error(`Failed to execute command: ${command.command}`, error);
+  if (line === undefined) {
+    console.warn("Line number is missing for CodeLens command.");
+    return;
+  }
+
+  const adjustedLine = typeof lineNumber === "number" ? line - 1 : line;
+
+  try {
+    const command = getLineCommand(documentUri, adjustedLine);
+    if (command?.command) {
+      const args = command.arguments || [];
+      commands.executeCommand(command.command, ...args);
+      console.debug(
+        `Executed command: ${command.command} for line ${line + 1}`,
+      );
+    } else {
+      console.warn(
+        `No command found for line ${line + 1} in ${documentUri.fsPath}`,
+      );
     }
-  } else {
-    console.warn(`No command found for line ${line} at ${documentUri}`);
+  } catch (error) {
+    console.error(`Failed to execute command for line ${line + 1}:`, error);
   }
 };
 

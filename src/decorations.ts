@@ -7,9 +7,9 @@ import {
   Uri,
   window,
 } from "vscode";
-import { getLensSvgDecorationType } from "./svg";
 import { executeCodeLensProvider, executeReferenceProvider } from "./codelens";
-import { debounce } from "./utils";
+import { getLensSvgDecorationType } from "./svg";
+import { debounce, getDocumentSymbols, extractFunctionLines } from "./utils";
 
 type TEditorState = {
   decorations: TextEditorDecorationType[];
@@ -86,7 +86,12 @@ const initOrGetEditorState = (editor: TextEditor) => {
 
 export async function updateDecorationsForEditor(activeEditor: TextEditor) {
   try {
-    const lens = await executeCodeLensProvider(activeEditor.document.uri);
+    const [lens, symbols] = await Promise.all([
+      executeCodeLensProvider(activeEditor.document.uri),
+      getDocumentSymbols(activeEditor.document.uri),
+    ]);
+
+    const functionLines = extractFunctionLines(symbols);
     const ranges: Record<string, Range[]> = {};
     const editorState = initOrGetEditorState(activeEditor);
 
@@ -94,29 +99,38 @@ export async function updateDecorationsForEditor(activeEditor: TextEditor) {
       editorState.commands.set(l.range.start.line, l.command);
 
       let key = "lens";
-      if (
+      const isReferenceCommand =
         l.command?.command === "editor.action.showReferences" ||
-        (l.command?.command === "" && l.command?.title.startsWith("0"))
-      ) {
+        (l.command?.command === "" && l.command?.title.startsWith("0"));
+
+      if (isReferenceCommand) {
         try {
           const references = await executeReferenceProvider(
             activeEditor.document.uri,
             l.range,
           );
-          key = references
-            .filter(
-              (r) =>
-                !(
-                  r.uri.path === activeEditor.document.uri.path &&
-                  r.range.start.isEqual(l.range.start)
-                ),
-            )
-            .length.toString();
+
+          const externalReferences = references.filter(
+            (r) =>
+              !(
+                r.uri.path === activeEditor.document.uri.path &&
+                r.range.start.isEqual(l.range.start)
+              ),
+          );
+
+          key = externalReferences.length.toString();
+
+          if (functionLines.has(l.range.start.line)) {
+            console.debug(
+              `Function/method at line ${l.range.start.line + 1} has ${key} references`,
+            );
+          }
         } catch (error) {
           console.error(
-            `Failed to execute reference provider for line ${l.range.start.line}:`,
+            `Failed to execute reference provider for line ${l.range.start.line + 1}:`,
             error,
           );
+          key = "lens";
         }
       }
 
@@ -147,4 +161,4 @@ export const updateDecorations = () => {
   }
 };
 
-export const debouncedUpdateDecorations = debounce(updateDecorations, 500);
+export const debouncedUpdateDecorations = debounce(updateDecorations);

@@ -47,6 +47,8 @@ To disable original CodeLens, you can set the following setting:
 | ----------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | "gutterCodelens.showUnfocused"      | `true`  | If true, shows decorations for unfocused editors. Unfocused editors still won't update reference counts automatically and will keep previous values until focused again.   |
 | "gutterCodelens.showReferencesIcon" | `true`  | If true, shows the icon besides the reference count in the gutter.                                                                                                         |
+| "gutterCodelens.debounceMs"         | `500`   | Delay in milliseconds before updating CodeLens after text changes. Higher values reduce flickering but may feel less responsive.                                           |
+| "gutterCodelens.maxCodeLenses"      | `50`    | Maximum number of CodeLenses to display per file. Set to -1 for unlimited. Lower values improve performance for large files.                                               |
 | "gutterCodelens.color"              | `""`    | Color of the reference count in the gutter. Should be using rgba() format. If empty, defaults to `rgba(255, 255, 255, 0.6)` on dark themes and equivalent on light themes. |
 | "gutterCodelens.iconColor"          | `""`    | Color of the icon in the gutter. Should be using rgba() format. . If empty, defaults to `rgba(255, 255, 255, 0.4)` on dark themes and equivalent on light themes.          |
 
@@ -58,9 +60,7 @@ To disable original CodeLens, you can set the following setting:
 
 ## Release Notes
 
-### 0.1.0
-
-This is the first version of the extension, primarily used for personal projects before a wider release. The next update will include any bug fixes and improvements based on user feedback. If you decide to use this extension, feel free to create issues for any bugs or suggestions.
+See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and version history.
 
 ## Contribute
 

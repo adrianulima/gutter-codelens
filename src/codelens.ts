@@ -1,11 +1,39 @@
-import { CodeLens, commands, Location, Position, Range, Uri } from "vscode";
+import {
+  CodeLens,
+  commands,
+  Location,
+  Position,
+  Range,
+  Uri,
+  workspace,
+} from "vscode";
 
 export async function executeCodeLensProvider(uri: Uri): Promise<CodeLens[]> {
   try {
+    const config = workspace.getConfiguration("gutterCodelens");
+    const maxLenses = config.get<number>("maxCodeLenses", 50);
+
+    let limit = maxLenses;
+    if (maxLenses === -1) {
+      const initialResult = await commands.executeCommand<CodeLens[]>(
+        "vscode.executeCodeLensProvider",
+        uri,
+        1,
+      );
+
+      if (initialResult && initialResult.length > 0) {
+        const allResult = await commands.executeCommand<CodeLens[]>(
+          "vscode.executeCodeLensProvider",
+          uri,
+        );
+        limit = allResult ? allResult.length : Number.MAX_VALUE;
+      }
+    }
+
     const result = await commands.executeCommand<CodeLens[]>(
       "vscode.executeCodeLensProvider",
       uri,
-      Number.MAX_VALUE,
+      limit,
     );
 
     return result || [];
